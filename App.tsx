@@ -1,118 +1,124 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useState } from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
-  View,
 } from 'react-native';
+import { Cities } from './src/HomeScreen/Cities';
+import { AddCity } from './src/AddCityScreen/AddCity';
+import { Info } from './src/InfoScreen/Info';
+import { AddLocation } from './src/AddLocationScreen/AddLocation';
+import { Locations } from './src/LocationsScreen/Locations';
+import { IconButton } from 'react-native-paper';
+import { testData } from './src/Shared/TestData';
+import { CitiesProvider } from './src/Context/CitiesProvider';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+// Define Navigation route parameters
+type RootStackParamList = {
+  Cities: undefined; // no route parameters
+  AddCity: undefined // no route parameters
+  Info: undefined; // no route parameters
+  AddLocation: {city: string}; // route param placeholder
+  Locations: {city: string}; // route param placeholder
 }
 
+// interfaces for data content of the application
+export interface iLocation {
+  id: string;
+  name: string;
+  info: string;
+};
+
+export interface iCity {
+  id: string;
+  name: string;
+  country: string;
+  locations?: iLocation[];
+}
+
+
+// RootStackParamList provides the type safety
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export type CitiesScreenProps = NativeStackScreenProps<RootStackParamList, 'Cities'>
+export type AddCityScreenProps = NativeStackScreenProps<RootStackParamList, 'AddCity'>
+export type AddLocationScreenProps = NativeStackScreenProps<RootStackParamList, 'AddLocation'>
+export type LocationsScreenProps = NativeStackScreenProps<RootStackParamList, 'Locations'>
+export type InfoScreenProps = NativeStackScreenProps<RootStackParamList, 'Info'>
+
+export type CitiesNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cities'>
+export type LocationsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Locations'>
+export type AddLocationNavigationProp = NativeStackNavigationProp<RootStackParamList, 'AddLocation'>
+
+
+
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <CitiesProvider>
+        <Stack.Navigator 
+          initialRouteName='Cities'
+          screenOptions={{
+            headerTitleAlign: "center"
+          }}
+          >
+          <Stack.Screen 
+            name="Cities" 
+            component={Cities}
+            options={({navigation}) => ({
+              title: "Cities App",
+              headerLeft: () => (
+                <IconButton 
+                  icon='information-outline'
+                  onPress={() => navigation.navigate('Info')}
+                  />
+              ),
+              headerRight: () => (
+                <IconButton 
+                  icon='plus-circle-outline'
+                  onPress={() => navigation.navigate('AddCity')}
+                  />
+              )
+            })}
+            ></Stack.Screen>
+          <Stack.Screen
+            name="AddCity"
+            component={AddCity}
+            options={{
+              title: 'Add city'
+            }}
+            ></Stack.Screen>
+          <Stack.Screen 
+            name="Locations" 
+            component={Locations}
+            options={{
+              title: 'Locations of'
+            }}
+            ></Stack.Screen>
+          <Stack.Screen 
+            name="AddLocation" 
+            component={AddLocation}
+            options={{
+              title: 'Add Location to'
+            }}
+            ></Stack.Screen>
+          <Stack.Screen 
+            name="Info" 
+            component={Info}
+            ></Stack.Screen>
+        </Stack.Navigator>
+      </CitiesProvider>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
 
 export default App;
